@@ -171,16 +171,20 @@ xfft = fftfreq(x1.size)
 # PLOT
 plt.figure(1)
 
-plt.subplot(211)
+plt.subplot(311)
 plt.axis([0, GRAPHX, -32768, 32768])
 plt.plot(x1, chan1)
 plt.plot(x1, chan2)
 plt.xlabel('samples')
 plt.ylabel('value')
 
-plt.subplot(212)
-plt.plot(xfft, yfft1)
-plt.plot(xfft, yfft2)
+plt.subplot(312)
+plt.plot(xfft, yfft1.real)
+plt.plot(xfft, yfft2.real)
+
+plt.subplot(313)
+plt.plot(xfft[0:100], np.abs(yfft1[0:100]))
+
 
 '''
 plt.subplot(413)
