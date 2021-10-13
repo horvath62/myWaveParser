@@ -4,7 +4,12 @@ from tkinter import filedialog
 from scipy.fft import fft, fftfreq, rfft, ifft
 # from scipy.signal import blackman
 import matplotlib.pyplot as plt
+from matplotlib.widgets import Slider, Button, RadioButtons
 import numpy as np
+
+import mpl_interactions.ipyplot as iplt
+
+
 
 
 # Convert a signed 16-bit value to signed integer (i.e. 0xffff => -1)
@@ -169,22 +174,59 @@ yfft2 = fft(chan2)
 xfft = fftfreq(x1.size)
 
 # PLOT
-plt.figure(1)
+fig = plt.figure(1)
+#fig.subplots_adjust(left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=0.1, hspace=0.1 )
 
-plt.subplot(311)
-plt.axis([0, GRAPHX, -32768, 32768])
-plt.plot(x1, chan1)
-plt.plot(x1, chan2)
-plt.xlabel('samples')
-plt.ylabel('value')
+#add_axes[left, bottom, width, height]
+plot1 = fig.add_axes([0.1, 0.7, 0.8, 0.3])
+#plot1.set_title("Wave File")
+#plot1.set_ylabel("amplitude")
+#plot1.set_xlabel("time")
+plot1.set_xlim([0, GRAPHX])
+plot1.set_ylim([-32768, 32768])
+[chanline1] = plot1.plot(x1, chan1, label="time domain", linewidth=2, color='green')
+[chanline2] = plot1.plot(x1, chan2, linewidth=2, color='red')
 
-plt.subplot(312)
-plt.plot(xfft, yfft1.real)
-plt.plot(xfft, yfft2.real)
+plot1startax = fig.add_axes([0.1, 0.6, 0.8, 0.03])
+plot1start = Slider(plot1startax, 'start', 0.1, 30.0, valinit=0)
+plot1widthax = fig.add_axes([0.1, 0.55, 0.8, 0.03])
+plot1width = Slider(plot1widthax, 'width', 0.1, 30.0, valinit=0)
 
-plt.subplot(313)
-plt.plot(xfft[0:100], np.abs(yfft1[0:100]))
+#plot1.plot('samples', 'value')
+#plt.xlabel('samples')
+#plt.ylabel('value')
 
+
+plot2 = fig.add_axes([0.1, 0.2, 0.8, 0.3])
+[fftline3] = plot2.plot(xfft[0:100], np.abs(yfft1[0:100]))
+#plot2.set_xlim([0,1])
+#plot2.set_ylim([0,1])
+plot2startax = fig.add_axes([0.1, 0.1, 0.8, 0.03])
+plot2start = Slider(plot2startax, 'start', 0.1, 30.0, valinit=0)
+plot2widthax = fig.add_axes([0.1, 0.05, 0.8, 0.03])
+plot2width = Slider(plot2widthax, 'width', 0.1, 30.0, valinit=0)
+
+
+'''
+############################
+#     iplt                 #
+############################
+xtemp=[0,1,2]
+ytemp=[3,2,1]
+
+
+fig2 = plt.figure(2)
+plot4 = fig2.add_axes([0.1, 0.5, 0.8, 0.4])
+controls = iplt.plot(xtemp,ytemp, tau=(1,3,1), beta=(1,10,100), label="f1")
+iplt.plot(xtemp, ytemp, controls=controls, label="f2")
+'''
+'''
+plot3 = fig.add_subplot(313)
+[fftline1] = plot3.plot(xfft, yfft1.real)
+[fftline2] = plot3.plot(xfft, yfft2.real)
+#plt.plot(xfft, yfft1.real)
+#plt.plot(xfft, yfft2.real)
+'''
 
 '''
 plt.subplot(413)
