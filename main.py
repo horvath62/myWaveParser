@@ -51,7 +51,7 @@ def printbytes(i, desc, bytes):
 NOISETHRESHOLD = 2
 PREDATA = True
 datacount = 0
-GRAPHX = 500
+GRAPHX = 2000
 chan1 = np.array([])
 chan2 = np.array([])
 x1 = np.array([])
@@ -166,6 +166,12 @@ if DATAFOUND:
 else:
     print("NO DATA FOUND")
 
+print(np.ndim(chan1[0]))
+print(np.ndim(chan1[0:10]))
+print(np.ndim(x1[0:10]))
+print(type(datacount))
+
+
 ###################################
 #       FFT CALCULATION           #
 ###################################
@@ -187,10 +193,27 @@ plot1.set_ylim([-32768, 32768])
 [chanline1] = plot1.plot(x1, chan1, label="time domain", linewidth=2, color='green')
 [chanline2] = plot1.plot(x1, chan2, linewidth=2, color='red')
 
-plot1startax = fig.add_axes([0.1, 0.6, 0.8, 0.03])
-plot1start = Slider(plot1startax, 'start', 0.1, 30.0, valinit=0)
-plot1widthax = fig.add_axes([0.1, 0.55, 0.8, 0.03])
-plot1width = Slider(plot1widthax, 'width', 0.1, 30.0, valinit=0)
+slider1ax = fig.add_axes([0.1, 0.6, 0.8, 0.03])
+slider1 = Slider(slider1ax, 'start', 1, GRAPHX, valinit=100)
+slider2ax = fig.add_axes([0.1, 0.55, 0.8, 0.03])
+slider2 = Slider(slider2ax, 'width', 1, GRAPHX, valinit=GRAPHX)
+
+print(type(chan1))
+
+
+def slider1_on_changed(val):
+
+    print("SLIDER:", slider1.val, slider2.val)
+
+    chanline1.set_ydata(chan1[int(slider1.val):int(slider2.val)])
+    chanline1.set_xdata(x1[int(slider1.val):int(slider2.val)])
+    chanline2.set_ydata(chan2[int(slider1.val):int(slider2.val)])
+    chanline2.set_xdata(x1[int(slider1.val):int(slider2.val)])
+
+
+slider1.on_changed(slider1_on_changed)
+slider2.on_changed(slider1_on_changed)
+
 
 #plot1.plot('samples', 'value')
 #plt.xlabel('samples')
