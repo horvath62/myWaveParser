@@ -8,7 +8,7 @@ from matplotlib.widgets import Slider, Button, RadioButtons
 import numpy as np
 
 import mpl_interactions.ipyplot as iplt
-
+import time
 
 
 
@@ -166,11 +166,6 @@ if DATAFOUND:
 else:
     print("NO DATA FOUND")
 
-print(np.ndim(chan1[0]))
-print(np.ndim(chan1[0:10]))
-print(np.ndim(x1[0:10]))
-print(type(datacount))
-
 
 ###################################
 #       FFT CALCULATION           #
@@ -198,8 +193,6 @@ slider1 = Slider(slider1ax, 'start', 1, GRAPHX, valinit=100)
 slider2ax = fig.add_axes([0.1, 0.55, 0.8, 0.03])
 slider2 = Slider(slider2ax, 'width', 1, GRAPHX, valinit=GRAPHX)
 
-print(type(chan1))
-
 
 def slider1_on_changed(val):
 
@@ -209,6 +202,10 @@ def slider1_on_changed(val):
     chanline1.set_xdata(x1[int(slider1.val):int(slider2.val)])
     chanline2.set_ydata(chan2[int(slider1.val):int(slider2.val)])
     chanline2.set_xdata(x1[int(slider1.val):int(slider2.val)])
+
+    plot1.set_xlim([int(slider1.val), int(slider2.val)])
+
+    plt.show()
 
 
 slider1.on_changed(slider1_on_changed)
