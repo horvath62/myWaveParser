@@ -46,28 +46,42 @@ def printbytes(i, desc, bytes):
         else:
             print("un supported variable in call")
 
+
 def timeslider_on_changed(val):
 
     print("TIME SLIDER:", slider1.val, slider2.val)
 
+    plot1.set_xlim([int(slider1.val), int(slider2.val)])
+
+    '''
     chanline1.set_ydata(chan1[int(slider1.val):int(slider2.val)])
     chanline1.set_xdata(x1[int(slider1.val):int(slider2.val)])
     chanline2.set_ydata(chan2[int(slider1.val):int(slider2.val)])
     chanline2.set_xdata(x1[int(slider1.val):int(slider2.val)])
-
-    plot1.set_xlim([int(slider1.val), int(slider2.val)])
+    '''
 
     plt.show()
 
+
 def fftslider_on_changed(val):
+
     print("FFT Slider", fftslider1.val, fftslider2.val)
 
+    plot2.set_xlim([int(fftslider1.val), int(fftslider2.val)])
+    plot3.set_xlim([int(fftslider1.val), int(fftslider2.val)])
+    #plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
+
+    '''
     fftline1.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
     fftline1.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
     fftline2.set_ydata(yfft2[int(fftslider1.val):int(fftslider2.val)])
     fftline2.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
+    '''
+    #angleline1.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
+    #angleline1.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
+    #angleline2.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
+    #angleline2.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
 
-    plot2.set_xlim([int(fftslider1.val), int(fftslider2.val)])
 
     plt.show()
 
@@ -217,16 +231,18 @@ plot1 = fig.add_axes([0.1, 0.7, 0.8, 0.3])
 #plot1.set_xlabel("time")
 plot1.set_xlim([0, GRAPHX])
 plot1.set_ylim([-32768, 32768])
-[chanline1] = plot1.plot(x1, chan1, label="time domain", linewidth=2, color='green')
-[chanline2] = plot1.plot(x1, chan2, linewidth=2, color='red')
+[chanline1] = plot1.plot(x1, chan1, label='time1', linewidth=2, color='green')
+[chanline2] = plot1.plot(x1, chan2, label='time2', linewidth=2, color='red')
 
 slider1ax = fig.add_axes([0.1, 0.6, 0.8, 0.03])
-slider1 = Slider(slider1ax, 'start', 1, GRAPHX, valinit=0)
+slider1 = Slider(slider1ax, 'start', 0, GRAPHX, valinit=0, valstep=1)
 slider2ax = fig.add_axes([0.1, 0.55, 0.8, 0.03])
-slider2 = Slider(slider2ax, 'width', 1, GRAPHX, valinit=GRAPHX)
+slider2 = Slider(slider2ax, 'width', 0, GRAPHX, valinit=GRAPHX, valstep=1)
 
 slider1.on_changed(timeslider_on_changed)
 slider2.on_changed(timeslider_on_changed)
+
+
 
 # PLOT 2 (FFT)  #################
 print()
@@ -239,25 +255,44 @@ for i in range(0, len(xfft)//2):
 
 print()
 
-
-
 print("Chan 1: first FFT amp:", yfft1[0], "last FFT amp:", yfft1[len(xfft)//2], "max:", max(yfft1))
 print("Chan 2: first FFT amp:", yfft2[0], "last FFT amp:", yfft2[len(xfft)//2], "max:", max(yfft1))
 print()
 
-plot2 = fig.add_axes([0.1, 0.2, 0.8, 0.3])
-
+plot2 = fig.add_axes([0.1, 0.4, 0.8, 0.1])
 plot2.set_xlim([0, len(xfft)//2])
-#plot2.set_ylim([-max(yfft1), max(yfft1)])
+#plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
 
-[fftline1] = plot2.plot(xfft[0:len(xfft)//2], np.abs(yfft1[0:len(xfft)//2]))
-[fftline2] = plot2.plot(xfft[0:len(xfft)//2], np.abs(yfft2[0:len(xfft)//2]))
+print("### abs yfft1 ####")
+print(np.abs(yfft1[0:len(xfft)//2]))
+print("MAX:",np.amax(np.abs(yfft1[0:len(xfft)//2])))
+print("### abs yfft2 ####")
+print(np.abs(yfft2[0:len(xfft)//2]))
+print("MAX:",np.amax(np.abs(yfft2[0:len(xfft)//2])))
+
+[fftline1] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft1[0:len(xfft)//2]), label='fft1')
+[fftline2] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft2[0:len(xfft)//2]), label='fft2')
+
+plot3 = fig.add_axes([0.1, 0.2, 0.8, 0.1])
+plot3.set_xlim([0, len(xfft//2)])
+[angleline1] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), np.angle(yfft1[0:len(xfft)//2]), label='fft1')
+[angleline2] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), np.angle(yfft2[0:len(xfft)//2]), label='fft1')
+
+'''
+print(chanline1.get_data())
+print(chanline1.get_path())
+print(chanline2)
+print(fftline1.get_data())
+print(fftline1.get_path())
+print(fftline2)
+'''
 
 fftslider1ax = fig.add_axes([0.1, 0.1, 0.8, 0.03])
-fftslider1 = Slider(fftslider1ax, 'start', 0, len(xfft)//2, valinit=0)
+fftslider1 = Slider(fftslider1ax, 'start', 0, len(xfft)//2, valinit=0, valstep=1)
 fftslider2ax = fig.add_axes([0.1, 0.05, 0.8, 0.03])
-fftslider2 = Slider(fftslider2ax, 'width', 0, len(xfft)//2, valinit=len(xfft)//2)
+fftslider2 = Slider(fftslider2ax, 'width', 0, len(xfft)//2, valinit=len(xfft)//2, valstep=1)
 
+#fftslider_on_changed(fftslider1)
 fftslider1.on_changed(fftslider_on_changed)
 fftslider2.on_changed(fftslider_on_changed)
 
