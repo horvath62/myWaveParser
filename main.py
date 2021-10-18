@@ -59,6 +59,8 @@ def timeslider_on_changed(val):
     chanline2.set_ydata(chan2[int(slider1.val):int(slider2.val)])
     chanline2.set_xdata(x1[int(slider1.val):int(slider2.val)])
     '''
+    print(chanline1.get_data())
+
 
     plt.show()
 
@@ -69,7 +71,7 @@ def fftslider_on_changed(val):
 
     plot2.set_xlim([int(fftslider1.val), int(fftslider2.val)])
     plot3.set_xlim([int(fftslider1.val), int(fftslider2.val)])
-    #plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
+    plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
 
     '''
     fftline1.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
@@ -243,32 +245,35 @@ slider1.on_changed(timeslider_on_changed)
 slider2.on_changed(timeslider_on_changed)
 
 
-
 # PLOT 2 (FFT)  #################
+
+'''
 print()
 print("FFT freq range:", xfft[0], " to ", xfft[len(xfft)//2-1])
 print("   number of freq:", len(xfft), )
 print(xfft)
 for i in range(0, len(xfft)//2):
     print(i, " ", format(xfft[i],'5.3f'), " ",x1[i])
-
-
+'''
+'''
 print()
-
 print("Chan 1: first FFT amp:", yfft1[0], "last FFT amp:", yfft1[len(xfft)//2], "max:", max(yfft1))
 print("Chan 2: first FFT amp:", yfft2[0], "last FFT amp:", yfft2[len(xfft)//2], "max:", max(yfft1))
 print()
+'''
 
 plot2 = fig.add_axes([0.1, 0.4, 0.8, 0.1])
 plot2.set_xlim([0, len(xfft)//2])
-#plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
+plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
 
+'''
 print("### abs yfft1 ####")
 print(np.abs(yfft1[0:len(xfft)//2]))
 print("MAX:",np.amax(np.abs(yfft1[0:len(xfft)//2])))
 print("### abs yfft2 ####")
 print(np.abs(yfft2[0:len(xfft)//2]))
 print("MAX:",np.amax(np.abs(yfft2[0:len(xfft)//2])))
+'''
 
 [fftline1] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft1[0:len(xfft)//2]), label='fft1')
 [fftline2] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft2[0:len(xfft)//2]), label='fft2')
