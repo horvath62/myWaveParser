@@ -46,28 +46,61 @@ def printbytes(i, desc, bytes):
         else:
             print("un supported variable in call")
 
+def timeslider_on_changed(val):
+
+    print("TIME SLIDER:", slider1.val, slider2.val)
+
+    chanline1.set_ydata(chan1[int(slider1.val):int(slider2.val)])
+    chanline1.set_xdata(x1[int(slider1.val):int(slider2.val)])
+    chanline2.set_ydata(chan2[int(slider1.val):int(slider2.val)])
+    chanline2.set_xdata(x1[int(slider1.val):int(slider2.val)])
+
+    plot1.set_xlim([int(slider1.val), int(slider2.val)])
+
+    plt.show()
+
+def fftslider_on_changed(val):
+    print("FFT Slider", fftslider1.val, fftslider2.val)
+
+    fftline1.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
+    fftline1.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
+    fftline2.set_ydata(yfft2[int(fftslider1.val):int(fftslider2.val)])
+    fftline2.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
+
+    plot2.set_xlim([int(fftslider1.val), int(fftslider2.val)])
+
+    plt.show()
+
 
 # DATA above this level is not noise
 NOISETHRESHOLD = 2
 PREDATA = True
 datacount = 0
-GRAPHX = 2000
+GRAPHX = 100
 chan1 = np.array([])
 chan2 = np.array([])
 x1 = np.array([])
 
-# SELECT FILE
-
+####################
+# SELECT FILE      #
+####################
 '''
 root = tk.Tk()
 root.withdraw()
 myFile = filedialog.askopenfile()
 
 WaveFile = myFile.name
+'''
 
 '''
+### AUTO SELECT FILE DURING DEBUG
+'''
 WaveFile = "C:/synth_samples/Rhodes_C4_session.wav"
+'''
+#####################################
 
+
+'''
 print("File selected:", WaveFile)
 
 # OPEN FILE
@@ -78,10 +111,6 @@ print("WAVE FILE LENGTH =", len(content), " bytes")
 # ENDDATA = (len(content) // 4) * 4 - 4
 # ENDDATA = 110000
 
-'''
-for i in range(0, 64):
-    printbytes(i, "==>", 4)
-'''
 
 if chr(content[0]) == "R" and chr(content[1]) == "I" and chr(content[2]) == "F" and chr(content[3]) == "F":
     print("RIFF FILE DETECTED in:", WaveFile)
@@ -170,13 +199,16 @@ else:
 ###################################
 #       FFT CALCULATION           #
 ###################################
+
+
 yfft1 = fft(chan1)
 yfft2 = fft(chan2)
 xfft = fftfreq(x1.size)
 
 # PLOT
 fig = plt.figure(1)
-#fig.subplots_adjust(left=0.1, right=0.9, bottom=0.1, top=0.9, wspace=0.1, hspace=0.1 )
+
+# PLOT 1  (TIME)  #################
 
 #add_axes[left, bottom, width, height]
 plot1 = fig.add_axes([0.1, 0.7, 0.8, 0.3])
@@ -189,43 +221,47 @@ plot1.set_ylim([-32768, 32768])
 [chanline2] = plot1.plot(x1, chan2, linewidth=2, color='red')
 
 slider1ax = fig.add_axes([0.1, 0.6, 0.8, 0.03])
-slider1 = Slider(slider1ax, 'start', 1, GRAPHX, valinit=100)
+slider1 = Slider(slider1ax, 'start', 1, GRAPHX, valinit=0)
 slider2ax = fig.add_axes([0.1, 0.55, 0.8, 0.03])
 slider2 = Slider(slider2ax, 'width', 1, GRAPHX, valinit=GRAPHX)
 
+slider1.on_changed(timeslider_on_changed)
+slider2.on_changed(timeslider_on_changed)
 
-def slider1_on_changed(val):
-
-    print("SLIDER:", slider1.val, slider2.val)
-
-    chanline1.set_ydata(chan1[int(slider1.val):int(slider2.val)])
-    chanline1.set_xdata(x1[int(slider1.val):int(slider2.val)])
-    chanline2.set_ydata(chan2[int(slider1.val):int(slider2.val)])
-    chanline2.set_xdata(x1[int(slider1.val):int(slider2.val)])
-
-    plot1.set_xlim([int(slider1.val), int(slider2.val)])
-
-    plt.show()
+# PLOT 2 (FFT)  #################
+print()
+print("FFT freq range:", xfft[0], " to ", xfft[len(xfft)//2-1])
+print("   number of freq:", len(xfft), )
+print(xfft)
+for i in range(0, len(xfft)//2):
+    print(i, " ", format(xfft[i],'5.3f'), " ",x1[i])
 
 
-slider1.on_changed(slider1_on_changed)
-slider2.on_changed(slider1_on_changed)
+print()
 
 
-#plot1.plot('samples', 'value')
-#plt.xlabel('samples')
-#plt.ylabel('value')
 
+print("Chan 1: first FFT amp:", yfft1[0], "last FFT amp:", yfft1[len(xfft)//2], "max:", max(yfft1))
+print("Chan 2: first FFT amp:", yfft2[0], "last FFT amp:", yfft2[len(xfft)//2], "max:", max(yfft1))
+print()
 
 plot2 = fig.add_axes([0.1, 0.2, 0.8, 0.3])
-[fftline3] = plot2.plot(xfft[0:100], np.abs(yfft1[0:100]))
-#plot2.set_xlim([0,1])
-#plot2.set_ylim([0,1])
-plot2startax = fig.add_axes([0.1, 0.1, 0.8, 0.03])
-plot2start = Slider(plot2startax, 'start', 0.1, 30.0, valinit=0)
-plot2widthax = fig.add_axes([0.1, 0.05, 0.8, 0.03])
-plot2width = Slider(plot2widthax, 'width', 0.1, 30.0, valinit=0)
 
+plot2.set_xlim([0, len(xfft)//2])
+#plot2.set_ylim([-max(yfft1), max(yfft1)])
+
+[fftline1] = plot2.plot(xfft[0:len(xfft)//2], np.abs(yfft1[0:len(xfft)//2]))
+[fftline2] = plot2.plot(xfft[0:len(xfft)//2], np.abs(yfft2[0:len(xfft)//2]))
+
+fftslider1ax = fig.add_axes([0.1, 0.1, 0.8, 0.03])
+fftslider1 = Slider(fftslider1ax, 'start', 0, len(xfft)//2, valinit=0)
+fftslider2ax = fig.add_axes([0.1, 0.05, 0.8, 0.03])
+fftslider2 = Slider(fftslider2ax, 'width', 0, len(xfft)//2, valinit=len(xfft)//2)
+
+fftslider1.on_changed(fftslider_on_changed)
+fftslider2.on_changed(fftslider_on_changed)
+
+plt.show()
 
 '''
 ############################
@@ -255,4 +291,4 @@ plt.plot(xfft, 2/N*np.abs(yfft[0:N//2].imag))
 plt.subplot(414)
 plt.plot(xfft, 2/N*np.abs(ywfft[0:N//2]))
 '''
-plt.show()
+
