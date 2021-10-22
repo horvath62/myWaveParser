@@ -52,15 +52,25 @@ def timeslider_on_changed(val):
     print("TIME SLIDER:", slider1.val, slider2.val)
 
     plot1.set_xlim([int(slider1.val), int(slider2.val)])
+    plot1.set_ylim([min(chan1+chan2), max(chan1+chan2)])
 
-    '''
-    chanline1.set_ydata(chan1[int(slider1.val):int(slider2.val)])
-    chanline1.set_xdata(x1[int(slider1.val):int(slider2.val)])
-    chanline2.set_ydata(chan2[int(slider1.val):int(slider2.val)])
-    chanline2.set_xdata(x1[int(slider1.val):int(slider2.val)])
-    '''
-    print(chanline1.get_data())
+    plot2.cla()
+    plot3.cla()
 
+    samples = slider2.val
+    yfft1 = fft(chan1[slider1.val:slider2.val])
+    yfft2 = fft(chan2[slider1.val:slider2.val])
+    xfft = fftfreq(slider2.val-slider1.val+1)
+
+    print(len(xfft), len(yfft1),len(yfft2))
+    print(xfft)
+    print(yfft1)
+
+    [fftline1] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft1[0:len(xfft) // 2]), label='fft1')
+    [fftline2] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft2[0:len(xfft) // 2]), label='fft2')
+
+    [angleline1] = plot3.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), 57.2975 * np.angle(yfft1[0:len(xfft) // 2]), label='fft1')
+    [angleline2] = plot3.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), 57.2975 * np.angle(yfft2[0:len(xfft) // 2]), label='fft1')
 
     plt.show()
 
@@ -92,7 +102,7 @@ def fftslider_on_changed(val):
 NOISETHRESHOLD = 2
 PREDATA = True
 datacount = 0
-GRAPHX = 100
+GRAPHX = 2000
 chan1 = np.array([])
 chan2 = np.array([])
 x1 = np.array([])
@@ -211,6 +221,11 @@ if DATAFOUND:
 else:
     print("NO DATA FOUND")
 
+print()
+print('###CHAN1###')
+print(chan1)
+
+
 
 ###################################
 #       FFT CALCULATION           #
@@ -280,8 +295,8 @@ print("MAX:",np.amax(np.abs(yfft2[0:len(xfft)//2])))
 
 plot3 = fig.add_axes([0.1, 0.2, 0.8, 0.1])
 plot3.set_xlim([0, len(xfft//2)])
-[angleline1] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), np.angle(yfft1[0:len(xfft)//2]), label='fft1')
-[angleline2] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), np.angle(yfft2[0:len(xfft)//2]), label='fft1')
+[angleline1] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), 57.2975*np.angle(yfft1[0:len(xfft)//2]), label='fft1')
+[angleline2] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), 57.2975*np.angle(yfft2[0:len(xfft)//2]), label='fft1')
 
 '''
 print(chanline1.get_data())
