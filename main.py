@@ -51,26 +51,23 @@ def timeslider_on_changed(val):
     if (slider2.val-slider1.val) < 100:
         plot1.set_xticks(np.arange(int(slider1.val), int(slider2.val), 10))
     else:
-        print("LOG:",slider2.val-slider1.val,
-              np.log10(slider2.val-slider1.val),
-              int(np.log10(slider2.val-slider1.val)),
-              10 ** (int(np.log10(slider2.val - slider1.val))  )
-              )
         plot1.set_xticks(np.arange(int(slider1.val), int(slider2.val), int(10**(int(np.log10(slider2.val-slider1.val))))//2))
 
     plot2.cla()
     plot3.cla()
 
-    samples = slider2.val
     yfft1 = fft(chan1[slider1.val:slider2.val])
     yfft2 = fft(chan2[slider1.val:slider2.val])
     xfft = fftfreq(slider2.val-slider1.val+1)
 
-
+    #slider4.set(xfft[-1])
 
     #print(len(xfft), len(yfft1), len(yfft2))
     #print(xfft)
-    #print(yfft1)
+    print("#### abs yfft1 ###")
+    print(np.abs(yfft1))
+    print("#### abs yfft2 ###")
+    print(np.abs(yfft2))
 
     [fftline1] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft1[0:len(xfft) // 2]), label='fft1')
     [fftline2] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft2[0:len(xfft) // 2]), label='fft2')
@@ -87,26 +84,30 @@ def fftslider_on_changed(val):
 
     plot2.set_xlim([int(fftslider1.val), int(fftslider2.val)])
     plot3.set_xlim([int(fftslider1.val), int(fftslider2.val)])
-    yfft1min = min(np.abs(yfft1[fftslider1.val:fftslider2.val]))
-    yfft1max = max(np.abs(yfft1[fftslider1.val:fftslider2.val]))
-    yfft2min = min(np.abs(yfft2[fftslider1.val:fftslider2.val]))
-    yfft2max = max(np.abs(yfft2[fftslider1.val:fftslider2.val]))
-    print ("###MIN###:", yfft1min, yfft1max, yfft2min, yfft2max)
-    plot2.set_ylim([yfft1min+yfft2min, yfft1max+yfft2max])
-    
+    yfft1min = np.min(np.abs(yfft1[fftslider1.val:fftslider2.val]))
+    yfft2min = np.min(np.abs(yfft2[fftslider1.val:fftslider2.val]))
+    yfft1max = np.max(np.abs(yfft1[fftslider1.val:fftslider2.val]))
+    yfft2max = np.max(np.abs(yfft2[fftslider1.val:fftslider2.val]))
+    yfftmin = np.min([yfft1min,yfft2min])
+    yfftmax = np.max([yfft1max,yfft2max])
 
-    #fftline1.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
-    #fftline1.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
-    #fftline2.set_ydata(yfft2[int(fftslider1.val):int(fftslider2.val)])
-    #fftline2.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
+    yfft1temp = 0
+    yfft2temp = 0
+    for i in range(0, len(xfft)//2-1):
+        if np.abs(yfft1[i]) > yfft1temp:
+            yfft1temp = np.abs(yfft1[i])
+        if np.abs(yfft2[i]) > yfft2temp:
+            yfft2temp = np.abs(yfft2[i])
+        print(format(i,'5d'), format(xfft[i],'7.5f'),
+              "#1#", format(np.abs(yfft1[i]),'10.2f'), format(yfft1temp,'10.2f'),
+              "#2#", format(np.abs(yfft2[i]),'10.2f'), format(yfft2temp,'10.2f'))
 
+    #yfft2min = min(np.abs(yfft2[fftslider1.val:fftslider2.val]))
+    #yfft2max = max(np.abs(yfft2[fftslider1.val:fftslider2.val]))
 
-    
-    #angleline1.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
-    #angleline1.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
-    #angleline2.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
-    #angleline2.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
+    plot2.set_ylim([yfftmin, yfftmax])
 
+    print("###YLIM###:", plot2.get_ylim(), " #MIN# ", yfft1min,yfft2min, yfftmin, "#MAX#", yfft1max, yfft2max, yfftmax)
 
     plt.show()
 
