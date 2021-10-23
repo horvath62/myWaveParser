@@ -7,17 +7,19 @@ import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider, Button, RadioButtons
 import numpy as np
 
+from myFunc import *
+
 import mpl_interactions.ipyplot as iplt
 import time
 
 
-
+'''
 # Convert a signed 16-bit value to signed integer (i.e. 0xffff => -1)
 def signedint16(value):
     if value >= 0x8000:
         value -= 0x10000
     return value
-
+'''
 
 # Print a line of data (file byte position, ascii description, and hex value and integer values at location i)
 # pass in:  location, ascii description, number of bytes
@@ -53,6 +55,12 @@ def timeslider_on_changed(val):
 
     plot1.set_xlim([int(slider1.val), int(slider2.val)])
     plot1.set_ylim([min(chan1+chan2), max(chan1+chan2)])
+    if (slider2.val-slider1.val) < 100:
+        plot1.autoscale(enable=False, axis='x')
+        plot1.set_xticks(np.arange(int(slider1.val), int(slider2.val), 10))
+    else:
+        plot1.autoscale(enable=True,axis='x')
+
 
     plot2.cla()
     plot3.cla()
@@ -62,7 +70,7 @@ def timeslider_on_changed(val):
     yfft2 = fft(chan2[slider1.val:slider2.val])
     xfft = fftfreq(slider2.val-slider1.val+1)
 
-    print(len(xfft), len(yfft1),len(yfft2))
+    print(len(xfft), len(yfft1), len(yfft2))
     print(xfft)
     print(yfft1)
 
@@ -73,8 +81,9 @@ def timeslider_on_changed(val):
     [angleline2] = plot3.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), 57.2975 * np.angle(yfft2[0:len(xfft) // 2]), label='fft1')
 
     plt.show()
+'''
 
-
+'''
 def fftslider_on_changed(val):
 
     print("FFT Slider", fftslider1.val, fftslider2.val)
@@ -82,13 +91,15 @@ def fftslider_on_changed(val):
     plot2.set_xlim([int(fftslider1.val), int(fftslider2.val)])
     plot3.set_xlim([int(fftslider1.val), int(fftslider2.val)])
     plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
+    
 
-    '''
-    fftline1.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
-    fftline1.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
-    fftline2.set_ydata(yfft2[int(fftslider1.val):int(fftslider2.val)])
-    fftline2.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
-    '''
+    #fftline1.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
+    #fftline1.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
+    #fftline2.set_ydata(yfft2[int(fftslider1.val):int(fftslider2.val)])
+    #fftline2.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
+
+
+    
     #angleline1.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
     #angleline1.set_ydata(yfft1[int(fftslider1.val):int(fftslider2.val)])
     #angleline2.set_xdata(xfft[int(fftslider1.val):int(fftslider2.val)])
