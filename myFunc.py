@@ -1,10 +1,41 @@
-
+import numpy as np
 
 # Convert a signed 16-bit value to signed integer (i.e. 0xffff => -1)
 def signedint16(value):
     if value >= 0x8000:
         value -= 0x10000
     return value
+
+
+
+
+
+def zerocrossing (xdata, ydata, starti, endi):
+    YPOSITIVE = False
+    zcross = False
+    indexlist = []
+    if (np.abs(ydata[starti]) >= 0 ):
+        YPOSITIVE = True
+    for i in range(starti + 1, endi - starti -1):
+        if (np.abs(ydata[i] < 0)) and (YPOSITIVE == True):
+            print("i:", i, "ydata[i]<0:", ydata[i - 1], ydata[i], YPOSITIVE)
+            zcross = True
+            YPOSITIVE = False
+
+        elif (np.abs(ydata[i]) >= 0) and (YPOSITIVE == False):
+            print("i:", i, "ydata[i]>0:", ydata[i - 1], ydata[i], YPOSITIVE)
+            zcross = True
+            YPOSITIVE = True
+
+        if zcross == True:
+            deltay = (np.abs(ydata[i])-np.abs(ydata[i-1]))
+            ratio = np.abs(ydata[i-1])/deltay
+            zc = (i-1) + ratio
+            indexlist.append(zc)
+            zcross = False
+            print("###i:",i, "ydata:", ydata[i-1], ydata[i], "calc:" ,deltay, ratio, zc)
+
+    return indexlist
 
 
 '''

@@ -53,6 +53,14 @@ def timeslider_on_changed(val):
     else:
         plot1.set_xticks(np.arange(int(slider1.val), int(slider2.val), int(10**(int(np.log10(slider2.val-slider1.val))))//2))
 
+    zcrosslist1 = zerocrossing(x1, chan1, slider1.val, slider2.val)
+    #zcrosslist2 = zerocrossing(x1, chan2, slider1.val, slider2.val))
+
+    print(zcrosslist1)
+
+    print(chan1[slider1.val:slider2.val])
+
+
     plot2.cla()
     plot3.cla()
 
@@ -64,10 +72,10 @@ def timeslider_on_changed(val):
 
     #print(len(xfft), len(yfft1), len(yfft2))
     #print(xfft)
-    print("#### abs yfft1 ###")
-    print(np.abs(yfft1))
-    print("#### abs yfft2 ###")
-    print(np.abs(yfft2))
+    #print("#### abs yfft1 ###")
+    #print(np.abs(yfft1))
+    #print("#### abs yfft2 ###")
+    #print(np.abs(yfft2))
 
     [fftline1] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft1[0:len(xfft) // 2]), label='fft1')
     [fftline2] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft2[0:len(xfft) // 2]), label='fft2')
@@ -241,9 +249,9 @@ print(chan1)
 
 
 
-###################################
-#       FFT CALCULATION           #
-###################################
+################################
+#       CALCULATIONS           #
+################################
 
 
 yfft1 = fft(chan1)
@@ -251,12 +259,17 @@ yfft2 = fft(chan2)
 xfft = fftfreq(x1.size)
 
 # PLOT
-fig = plt.figure(1)
+fig = plt.figure(1, figsize=(8,10),dpi=100)
 
-# PLOT 1  (TIME)  #################
+
+
+####################
+# PLOT 1  (TIME)  ##
+####################
 
 #add_axes[left, bottom, width, height]
-plot1 = fig.add_axes([0.1, 0.7, 0.8, 0.3])
+plot1 = fig.add_axes([0.1, 0.7, 0.6, 0.3])
+plot1.grid()
 #plot1.set_title("Wave File")
 #plot1.set_ylabel("amplitude")
 #plot1.set_xlabel("time")
@@ -265,13 +278,25 @@ plot1.set_ylim([-32768, 32768])
 [chanline1] = plot1.plot(x1, chan1, label='time1', linewidth=2, color='green')
 [chanline2] = plot1.plot(x1, chan2, label='time2', linewidth=2, color='red')
 
-slider1ax = fig.add_axes([0.1, 0.6, 0.8, 0.03])
+slider1ax = fig.add_axes([0.1, 0.6, 0.6, 0.03])
 slider1 = Slider(slider1ax, 'start', 0, GRAPHX, valinit=0, valstep=1)
-slider2ax = fig.add_axes([0.1, 0.55, 0.8, 0.03])
+slider2ax = fig.add_axes([0.1, 0.55, 0.6, 0.03])
 slider2 = Slider(slider2ax, 'width', 0, GRAPHX, valinit=GRAPHX, valstep=1)
 
 slider1.on_changed(timeslider_on_changed)
 slider2.on_changed(timeslider_on_changed)
+
+fig.text(0.72, 0.975, "WAVEFILE ANALYZER:" )
+fig.text(0.72, 0.95, "SAMPLING FREQ:" + format(SAMPLEFREQ,'7.0f'))
+fig.text(0.72, 0.925, "SAMPLE INT:"+ format(1/SAMPLEFREQ*1e6,'6.2f')+'us' )
+fig.text(0.72, 0.90, "CHANNELS:"+format(NUMCHANNELS, '1d'))
+fig.text(0.72, 0.875, "BITS PER SAMPLE:"+format(BITSPERSAMPLE, '2d'))
+fig.text(0.72, 0.85, "SAMPLES:"+format(DATACHUNKSIZE,'8d'))
+fig.text(0.72, 0.825, "FUND. FREQ:"+format(0,'5.2f') )
+
+# Create the scatter plot
+# plt.scatter(x=x, y=y)
+
 
 
 # PLOT 2 (FFT)  #################
@@ -291,7 +316,7 @@ print("Chan 2: first FFT amp:", yfft2[0], "last FFT amp:", yfft2[len(xfft)//2], 
 print()
 '''
 
-plot2 = fig.add_axes([0.1, 0.4, 0.8, 0.1])
+plot2 = fig.add_axes([0.1, 0.4, 0.6, 0.1])
 plot2.set_xlim([0, len(xfft)//2])
 plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
 
@@ -307,7 +332,7 @@ print("MAX:",np.amax(np.abs(yfft2[0:len(xfft)//2])))
 [fftline1] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft1[0:len(xfft)//2]), label='fft1')
 [fftline2] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft2[0:len(xfft)//2]), label='fft2')
 
-plot3 = fig.add_axes([0.1, 0.2, 0.8, 0.1])
+plot3 = fig.add_axes([0.1, 0.2, 0.6, 0.1])
 plot3.set_xlim([0, len(xfft//2)])
 [angleline1] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), 57.2975*np.angle(yfft1[0:len(xfft)//2]), label='fft1')
 [angleline2] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), 57.2975*np.angle(yfft2[0:len(xfft)//2]), label='fft1')
