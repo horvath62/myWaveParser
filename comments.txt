@@ -1,0 +1,28 @@
+sci.py fft library function
+---------------------------
+feeding function with list of real numbers ( i.e. wave file data)
+will produce the x-axis (real freqency) and y-axis (complex fft) list of the fft ( Fast Fourier Transform)
+
+example:
+data = [ list of 4 real numbers ]
+performing xfft function on data yields 5 numbers ( x-axis)
+however note they are not in numerical order.
+positive number starting with zero, then negative numbers
+xfft(data)  produces a list of normalized frequencies[ 0, 0.2, 0.4, -0.4, -0.2 ]
+since the results are symmetrical around zero
+only the positive (x-axis) results are required to fully represent fft
+
+Therefore to iterate through fft results:
+for i in range(0,len(xfft)//2 + 1)
+
+
+
+
+
+
+
+data len(xfft)  xfft>=0 xfft<0 len(xfft)//2 len(yfft) results are indexed weird (x) (y) relative index
+---- ---------  ------- ------ ---------    --------  ------------------------------------------------
+3      4         2       2      2            3        (0,1,-2,-1        (0,1,-1)
+4      5         3       2      2            4        (0,1,2,-2,-1)     (0,1,2,-1)
+5      6         3       3      3            5        (0,1,2,-3,-2,-1)  (0,1,2,-2,-1)

@@ -47,7 +47,17 @@ def timeslider_on_changed(val):
     print("TIME SLIDER:", slider1.val, slider2.val)
 
     plot1.set_xlim([int(slider1.val), int(slider2.val)])
-    plot1.set_ylim([min(chan1+chan2), max(chan1+chan2)])
+
+    chan1min = np.min(chan1[slider1.val:slider2.val])
+    chan2min = np.min(chan2[slider1.val:slider2.val])
+    chan1max = np.max(chan1[slider1.val:slider2.val])
+    chan2max = np.max(chan2[slider1.val:slider2.val])
+    chanmin = np.min([chan1min,chan2min])
+    chanmax = np.max([chan1max,chan2max])
+    plot1.set_ylim([chanmin,chanmax])
+
+
+
     if (slider2.val-slider1.val) < 100:
         plot1.set_xticks(np.arange(int(slider1.val), int(slider2.val), 10))
     else:
@@ -56,8 +66,9 @@ def timeslider_on_changed(val):
     zcrosslist1 = zerocrossing(x1, chan1, slider1.val, slider2.val)
     #zcrosslist2 = zerocrossing(x1, chan2, slider1.val, slider2.val))
 
-    print(zcrosslist1)
 
+
+    print(zcrosslist1)
     print(chan1[slider1.val:slider2.val])
 
 
@@ -68,10 +79,18 @@ def timeslider_on_changed(val):
     yfft2 = fft(chan2[slider1.val:slider2.val])
     xfft = fftfreq(slider2.val-slider1.val+1)
 
-    #slider4.set(xfft[-1])
-
-    #print(len(xfft), len(yfft1), len(yfft2))
-    #print(xfft)
+    print("### length #####")
+    print("len(xfft):",len(xfft), "len(yfft)", len(yfft1), len(yfft2))
+    print("### xfft ###")
+    print(xfft)
+    print("### yfft1 ###")
+    print(yfft1)
+    print("### yfft2 ###")
+    print(yfft2)
+    for i in range(0,len(xfft)-1):
+       print(yfft1[i])
+    print("########")
+    print()
     #print("#### abs yfft1 ###")
     #print(np.abs(yfft1))
     #print("#### abs yfft2 ###")
@@ -124,7 +143,7 @@ def fftslider_on_changed(val):
 NOISETHRESHOLD = 2
 PREDATA = True
 datacount = 0
-GRAPHX = 2000
+#GRAPHX = 2000
 chan1 = np.array([])
 chan2 = np.array([])
 x1 = np.array([])
@@ -142,8 +161,9 @@ WaveFile = myFile.name
 
 '''
 ### AUTO SELECT FILE DURING DEBUG
-'''
 WaveFile = "C:/synth_samples/Rhodes_C4_session.wav"
+'''
+WaveFile = "C:/synth_samples/short_stereo_noerror.wav"
 '''
 #####################################
 
@@ -216,6 +236,7 @@ if DATAFOUND:
     # print("check this:", DATASTART, DATAEND, DATASTART + DATACHUNKSIZE, len(content))
 
     datacount = 0
+    predatacount = 0
     PREDATA = True
     for i in range(DATASTART, DATAEND, 4):
 
@@ -227,25 +248,29 @@ if DATAFOUND:
                     signedint16(content[i + 2] + 0x100 * content[i + 3]) < -NOISETHRESHOLD):
                 PREDATA = False
                 NONZERODATA = i
+            else:
+                predatacount += 1
 
         # No longer noise, so process data, put into channel arrays
         if not PREDATA:
             datacount += 1
-            if datacount < GRAPHX:
+            #if datacount < GRAPHX:
+            if datacount > 0:
+                #print("i:",i,"content[i]", content[i], "datacount",datacount)
                 chan1 = np.append(chan1, [(signedint16(content[i] + 0x100 * content[i + 1]))])
                 chan2 = np.append(chan2, [(signedint16(content[i + 2] + 0x100 * content[i + 3]))])
                 x1 = np.append(x1, [datacount])
 
     print("NONE ZERO DATA STARTS AT BYTE LOCATION:", NONZERODATA)
     print("NOISE (NONE ZERO DATA) THRESHOLD:", NOISETHRESHOLD)
-    print("DATA SAMPLES PROCESSED", datacount, GRAPHX, chan1.size, x1.size)
+    print("DATA SAMPLES PROCESSED:", datacount, chan1.size, x1.size)
 
 else:
     print("NO DATA FOUND")
 
 print()
-print('###CHAN1###')
-print(chan1)
+#print('###CHAN1###')
+#print(chan1)
 
 
 
@@ -254,9 +279,8 @@ print(chan1)
 ################################
 
 
-yfft1 = fft(chan1)
-yfft2 = fft(chan2)
-xfft = fftfreq(x1.size)
+
+
 
 # PLOT
 fig = plt.figure(1, figsize=(8,10),dpi=100)
@@ -273,26 +297,34 @@ plot1.grid()
 #plot1.set_title("Wave File")
 #plot1.set_ylabel("amplitude")
 #plot1.set_xlabel("time")
-plot1.set_xlim([0, GRAPHX])
+plot1.set_xlim([0, datacount-1])
 plot1.set_ylim([-32768, 32768])
 [chanline1] = plot1.plot(x1, chan1, label='time1', linewidth=2, color='green')
 [chanline2] = plot1.plot(x1, chan2, label='time2', linewidth=2, color='red')
 
 slider1ax = fig.add_axes([0.1, 0.6, 0.6, 0.03])
-slider1 = Slider(slider1ax, 'start', 0, GRAPHX, valinit=0, valstep=1)
+slider1 = Slider(slider1ax, 'start', 0, datacount-1, valinit=0, valstep=1)
 slider2ax = fig.add_axes([0.1, 0.55, 0.6, 0.03])
-slider2 = Slider(slider2ax, 'width', 0, GRAPHX, valinit=GRAPHX, valstep=1)
+slider2 = Slider(slider2ax, 'width', 0, datacount-1, valinit=datacount-1, valstep=1)
 
 slider1.on_changed(timeslider_on_changed)
 slider2.on_changed(timeslider_on_changed)
 
-fig.text(0.72, 0.975, "WAVEFILE ANALYZER:" )
-fig.text(0.72, 0.95, "SAMPLING FREQ:" + format(SAMPLEFREQ,'7.0f'))
-fig.text(0.72, 0.925, "SAMPLE INT:"+ format(1/SAMPLEFREQ*1e6,'6.2f')+'us' )
-fig.text(0.72, 0.90, "CHANNELS:"+format(NUMCHANNELS, '1d'))
-fig.text(0.72, 0.875, "BITS PER SAMPLE:"+format(BITSPERSAMPLE, '2d'))
-fig.text(0.72, 0.85, "SAMPLES:"+format(DATACHUNKSIZE,'8d'))
-fig.text(0.72, 0.825, "FUND. FREQ:"+format(0,'5.2f') )
+fig.canvas.manager.set_window_title('WAVE FILE ANALYZER')
+fig.text(0.72, 0.98, "WAVE FILE HEADER:" )
+fig.text(0.72, 0.96, "SAMPLING FREQ:" + format(SAMPLEFREQ,'7.0f'))
+fig.text(0.72, 0.94, "SAMPLE INT:"+ format(1/SAMPLEFREQ*1e6,'6.2f')+'us' )
+fig.text(0.72, 0.92, "CHANNELS:"+format(NUMCHANNELS, '1d'))
+fig.text(0.72, 0.90, "BITS PER SAMPLE:"+format(BITSPERSAMPLE, '2d'))
+fig.text(0.72, 0.88, "DATA BYTES:"+format(DATACHUNKSIZE,'8d'))
+fig.text(0.72, 0.86, "SAMPLES:"+format(DATACHUNKSIZE/NUMCHANNELS/(BITSPERSAMPLE/8),'8.0f'))
+
+fig.text(0.72, 0.83, "PROCESSING DATA")
+fig.text(0.72, 0.81, "PROCESSED SAMPLES:"+format(datacount, '8d'))
+fig.text(0.72, 0.79, "NOISE FLOOR:"+format(NOISETHRESHOLD, '8d'))
+fig.text(0.72, 0.77, "LEADING BYTES:"+format(predatacount, '8d'))
+
+
 
 # Create the scatter plot
 # plt.scatter(x=x, y=y)
@@ -317,8 +349,8 @@ print()
 '''
 
 plot2 = fig.add_axes([0.1, 0.4, 0.6, 0.1])
-plot2.set_xlim([0, len(xfft)//2])
-plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
+#plot2.set_xlim([0, len(xfft)//2])
+#plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
 
 '''
 print("### abs yfft1 ####")
@@ -328,14 +360,18 @@ print("### abs yfft2 ####")
 print(np.abs(yfft2[0:len(xfft)//2]))
 print("MAX:",np.amax(np.abs(yfft2[0:len(xfft)//2])))
 '''
-
+'''
 [fftline1] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft1[0:len(xfft)//2]), label='fft1')
 [fftline2] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft2[0:len(xfft)//2]), label='fft2')
-
+'''
 plot3 = fig.add_axes([0.1, 0.2, 0.6, 0.1])
-plot3.set_xlim([0, len(xfft//2)])
+#plot3.set_xlim([0, len(xfft//2)])
+
+
+'''
 [angleline1] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), 57.2975*np.angle(yfft1[0:len(xfft)//2]), label='fft1')
 [angleline2] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), 57.2975*np.angle(yfft2[0:len(xfft)//2]), label='fft1')
+'''
 
 '''
 print(chanline1.get_data())
@@ -346,14 +382,27 @@ print(fftline1.get_path())
 print(fftline2)
 '''
 
+
+#yfft1 = fft(chan1)
+#yfft2 = fft(chan2)
+xfft = fftfreq(x1.size)
+
+#####delimna#####   how to intialize wihtout data?????
 fftslider1ax = fig.add_axes([0.1, 0.1, 0.8, 0.03])
-fftslider1 = Slider(fftslider1ax, 'start', 0, len(xfft)//2, valinit=0, valstep=1)
+fftslider1 = Slider(fftslider1ax, 'start', 0, len(xfft)//2-1, valinit=0, valstep=1)
 fftslider2ax = fig.add_axes([0.1, 0.05, 0.8, 0.03])
-fftslider2 = Slider(fftslider2ax, 'width', 0, len(xfft)//2, valinit=len(xfft)//2, valstep=1)
+fftslider2 = Slider(fftslider2ax, 'width', 0, len(xfft)//2-1, valinit=1, valstep=1)
 
 #fftslider_on_changed(fftslider1)
 fftslider1.on_changed(fftslider_on_changed)
 fftslider2.on_changed(fftslider_on_changed)
+
+
+print("====> x1.size:",x1.size, "len(xfft):",len(xfft))
+
+
+slider1.set_val(100)
+
 
 plt.show()
 

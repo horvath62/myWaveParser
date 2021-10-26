@@ -18,12 +18,12 @@ def zerocrossing (xdata, ydata, starti, endi):
         YPOSITIVE = True
     for i in range(starti + 1, endi - starti -1):
         if (np.abs(ydata[i] < 0)) and (YPOSITIVE == True):
-            print("i:", i, "ydata[i]<0:", ydata[i - 1], ydata[i], YPOSITIVE)
+            #print("i:", i, "ydata[i]<0:", ydata[i - 1], ydata[i], YPOSITIVE)
             zcross = True
             YPOSITIVE = False
 
         elif (np.abs(ydata[i]) >= 0) and (YPOSITIVE == False):
-            print("i:", i, "ydata[i]>0:", ydata[i - 1], ydata[i], YPOSITIVE)
+            #print("i:", i, "ydata[i]>0:", ydata[i - 1], ydata[i], YPOSITIVE)
             zcross = True
             YPOSITIVE = True
 
@@ -33,7 +33,7 @@ def zerocrossing (xdata, ydata, starti, endi):
             zc = (i-1) + ratio
             indexlist.append(zc)
             zcross = False
-            print("###i:",i, "ydata:", ydata[i-1], ydata[i], "calc:" ,deltay, ratio, zc)
+            #print("###i:",i, "ydata:", ydata[i-1], ydata[i], "calc:" ,deltay, ratio, zc)
 
     return indexlist
 
