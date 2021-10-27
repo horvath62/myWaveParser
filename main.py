@@ -99,7 +99,7 @@ def timeslider_on_changed(val):
     plt.show()
 
 
-def fftslider_on_changed(val):
+def fftslider_on_changed(val, yfft1,yfft2):
 
     print("FFT Slider", fftslider1.val, fftslider2.val)
 
@@ -267,19 +267,10 @@ print()
 #print(chan1)
 
 
-
-################################
-#       CALCULATIONS           #
-################################
-
-
-
-
-
-# PLOT
+############
+# FIGURE   #
+############
 fig = plt.figure(1, figsize=(8,10),dpi=100)
-
-
 
 ####################
 # PLOT 1  (TIME)  ##
@@ -341,8 +332,8 @@ fftslider2ax = fig.add_axes([0.1, 0.05, 0.8, 0.03])
 fftslider2 = Slider(fftslider2ax, 'width', 0, len(xfft)//2-1, valinit=1, valstep=1)
 
 # Set up event calls for changes to slider
-fftslider1.on_changed(fftslider_on_changed)
-fftslider2.on_changed(fftslider_on_changed)
+fftslider1.on_changed(fftslider_on_changed, yfft1, yfft2)
+fftslider2.on_changed(fftslider_on_changed, yfft1, yfft2)
 
 # Call Slider routine to intialize the fist loaded dataset
 slider1.set_val(0)
