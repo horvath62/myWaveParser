@@ -44,6 +44,8 @@ def printbytes(i, desc, bytes):
 def timeslider_on_changed(val):
 
     print("TIME SLIDER:", slider1.val, slider2.val)
+    if slider2.val < slider1.val:
+        slider2.set_val(slider1.val)
 
     plot1.set_xlim([int(slider1.val), int(slider2.val)])
 
@@ -69,39 +71,58 @@ def timeslider_on_changed(val):
     plot2.cla()
     plot3.cla()
 
+    fftslider_on_changed(0)
+
+    plt.show()
+
+
+
+
+def fftslider_on_changed(val):
+
+    print("FFT Slider", fftslider1.val, fftslider2.val)
+
+    if fftslider2.val < fftslider1.val:
+        fftslider2.set_val(fftslider1.val)
+
+
+    ##############################################################
     yfft1 = fft(chan1[slider1.val:slider2.val])
     yfft2 = fft(chan2[slider1.val:slider2.val])
-    xfft = fftfreq(slider2.val-slider1.val+1)
+    xfft = fftfreq(slider2.val - slider1.val + 1)
 
+    '''
     print("### length #####")
-    print("len(xfft):",len(xfft), "len(yfft)", len(yfft1), len(yfft2))
+    print("len(xfft):", len(xfft), "len(yfft)", len(yfft1), len(yfft2))
     print("### xfft ###")
     print(xfft)
     print("### yfft1 ###")
     print(yfft1)
     print("### yfft2 ###")
     print(yfft2)
-    for i in range(0, len(xfft)-1):
-       print(yfft1[i])
+    for i in range(0, len(xfft) - 1):
+        print(yfft1[i])
     print("########")
     print()
-    #print("#### abs yfft1 ###")
-    #print(np.abs(yfft1))
-    #print("#### abs yfft2 ###")
-    #print(np.abs(yfft2))
+    # print("#### abs yfft1 ###")
+    # print(np.abs(yfft1))
+    # print("#### abs yfft2 ###")
+    # print(np.abs(yfft2))
+    '''
 
-    [fftline1] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft1[0:len(xfft) // 2]), label='fft1')
-    [fftline2] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft2[0:len(xfft) // 2]), label='fft2')
+    [fftline1] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft1[0:len(xfft) // 2]),
+                            label='fft1')
+    [fftline2] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft2[0:len(xfft) // 2]),
+                            label='fft2')
 
-    [angleline1] = plot3.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), 57.2975 * np.angle(yfft1[0:len(xfft) // 2]), label='fft1')
-    [angleline2] = plot3.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), 57.2975 * np.angle(yfft2[0:len(xfft) // 2]), label='fft1')
+    [angleline1] = plot3.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2),
+                              57.2975 * np.angle(yfft1[0:len(xfft) // 2]), label='fft1')
+    [angleline2] = plot3.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2),
+                              57.2975 * np.angle(yfft2[0:len(xfft) // 2]), label='fft1')
+    #############################################################
 
-    plt.show()
 
 
-def fftslider_on_changed(val, yfft1,yfft2):
-
-    print("FFT Slider", fftslider1.val, fftslider2.val)
 
     plot2.set_xlim([int(fftslider1.val), int(fftslider2.val)])
     plot3.set_xlim([int(fftslider1.val), int(fftslider2.val)])
@@ -289,7 +310,7 @@ plot1.set_ylim([-32768, 32768])
 slider1ax = fig.add_axes([0.1, 0.6, 0.6, 0.03])
 slider1 = Slider(slider1ax, 'start', 0, datacount-1, valinit=0, valstep=1)
 slider2ax = fig.add_axes([0.1, 0.55, 0.6, 0.03])
-slider2 = Slider(slider2ax, 'width', 0, datacount-1, valinit=datacount-1, valstep=1)
+slider2 = Slider(slider2ax, 'end', 0, datacount-1, valinit=datacount-1, valstep=1)
 
 slider1.on_changed(timeslider_on_changed)
 slider2.on_changed(timeslider_on_changed)
@@ -326,14 +347,14 @@ plot3 = fig.add_axes([0.1, 0.2, 0.6, 0.1])
 xfft = fftfreq(x1.size)
 
 # Setup Sliders
-fftslider1ax = fig.add_axes([0.1, 0.1, 0.8, 0.03])
+fftslider1ax = fig.add_axes([0.1, 0.1, 0.6, 0.03])
 fftslider1 = Slider(fftslider1ax, 'start', 0, len(xfft)//2-1, valinit=0, valstep=1)
-fftslider2ax = fig.add_axes([0.1, 0.05, 0.8, 0.03])
-fftslider2 = Slider(fftslider2ax, 'width', 0, len(xfft)//2-1, valinit=1, valstep=1)
+fftslider2ax = fig.add_axes([0.1, 0.05, 0.6, 0.03])
+fftslider2 = Slider(fftslider2ax, 'end', 0, len(xfft)//2-1, valinit=len(xfft)//2, valstep=1)
 
 # Set up event calls for changes to slider
-fftslider1.on_changed(fftslider_on_changed, yfft1, yfft2)
-fftslider2.on_changed(fftslider_on_changed, yfft1, yfft2)
+fftslider1.on_changed(fftslider_on_changed)
+fftslider2.on_changed(fftslider_on_changed)
 
 # Call Slider routine to intialize the fist loaded dataset
 slider1.set_val(0)
