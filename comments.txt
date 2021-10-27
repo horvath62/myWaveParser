@@ -1,7 +1,9 @@
 sci.py fft library function
 ---------------------------
-feeding function with list of real numbers ( i.e. wave file data)
-will produce the x-axis (real freqency) and y-axis (complex fft) list of the fft ( Fast Fourier Transform)
+input into the functions ( xfft & yfft) with list of real numbers ( i.e. wave file data)
+will produce an output of the x-axis (real frequency) and y-axis (complex fft) list of the fft ( Fast Fourier Transform)
+X-axis output (xfft) is normalized to a full range of 1.0 (i.e. -0.5 to +0.5)
+Y-axis output (yfft) is the summation without dividing by N and T, so numbers are quite large.
 
 example:
 data = [ list of 4 real numbers ]
@@ -10,17 +12,21 @@ however note they are not in numerical order.
 positive number starting with zero, then negative numbers
 xfft(data)  produces a list of normalized frequencies[ 0, 0.2, 0.4, -0.4, -0.2 ]
 since the results are symmetrical around zero
-only the positive (x-axis) results are required to fully represent fft
+only the positive (x-axis) results are required to fully represent the fft
 
-Therefore to iterate through fft results:
-for i in range(0,len(xfft)//2 + 1)
+Therefore to iterate through fft results (starting at index 0:
 
+for i in range(0,len(xfft)//2-1):   #  //2 is the floor function
+  print(i, xfft[i],yfft[i])
 
+(with this iteration algo with an even nmber of data the last yfft data point will not get to,
+which in large data sets is not really a big deal as the data out there is insignificant)
 
+to skip over the first data point ( dc offset) start at i=1
 
+The data indexing and size of returned xfft and yfft is a little strange
 
-
-
+IF number of "data" points is, then size of each list is:
 data len(xfft)  xfft>=0 xfft<0 len(xfft)//2 len(yfft) results are indexed weird (x) (y) relative index
 ---- ---------  ------- ------ ---------    --------  ------------------------------------------------
 3      4         2       2      2            3        (0,1,-2,-1        (0,1,-1)

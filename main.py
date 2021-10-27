@@ -13,7 +13,6 @@ import mpl_interactions.ipyplot as iplt
 import time
 
 
-
 # Print a line of data (file byte position, ascii description, and hex value and integer values at location i)
 # pass in:  location, ascii description, number of bytes
 def printbytes(i, desc, bytes):
@@ -56,8 +55,6 @@ def timeslider_on_changed(val):
     chanmax = np.max([chan1max,chan2max])
     plot1.set_ylim([chanmin,chanmax])
 
-
-
     if (slider2.val-slider1.val) < 100:
         plot1.set_xticks(np.arange(int(slider1.val), int(slider2.val), 10))
     else:
@@ -66,11 +63,8 @@ def timeslider_on_changed(val):
     zcrosslist1 = zerocrossing(x1, chan1, slider1.val, slider2.val)
     #zcrosslist2 = zerocrossing(x1, chan2, slider1.val, slider2.val))
 
-
-
     print(zcrosslist1)
     print(chan1[slider1.val:slider2.val])
-
 
     plot2.cla()
     plot3.cla()
@@ -87,7 +81,7 @@ def timeslider_on_changed(val):
     print(yfft1)
     print("### yfft2 ###")
     print(yfft2)
-    for i in range(0,len(xfft)-1):
+    for i in range(0, len(xfft)-1):
        print(yfft1[i])
     print("########")
     print()
@@ -291,7 +285,6 @@ fig = plt.figure(1, figsize=(8,10),dpi=100)
 # PLOT 1  (TIME)  ##
 ####################
 
-#add_axes[left, bottom, width, height]
 plot1 = fig.add_axes([0.1, 0.7, 0.6, 0.3])
 plot1.grid()
 #plot1.set_title("Wave File")
@@ -310,6 +303,9 @@ slider2 = Slider(slider2ax, 'width', 0, datacount-1, valinit=datacount-1, valste
 slider1.on_changed(timeslider_on_changed)
 slider2.on_changed(timeslider_on_changed)
 
+############
+#  TEXT    #
+############
 fig.canvas.manager.set_window_title('WAVE FILE ANALYZER')
 fig.text(0.72, 0.98, "WAVE FILE HEADER:" )
 fig.text(0.72, 0.96, "SAMPLING FREQ:" + format(SAMPLEFREQ,'7.0f'))
@@ -324,84 +320,32 @@ fig.text(0.72, 0.81, "PROCESSED SAMPLES:"+format(datacount, '8d'))
 fig.text(0.72, 0.79, "NOISE FLOOR:"+format(NOISETHRESHOLD, '8d'))
 fig.text(0.72, 0.77, "LEADING BYTES:"+format(predatacount, '8d'))
 
-
-
 # Create the scatter plot
 # plt.scatter(x=x, y=y)
 
+######################
+# PLOT 2 and 3(FFT)  #
+######################
 
-
-# PLOT 2 (FFT)  #################
-
-'''
-print()
-print("FFT freq range:", xfft[0], " to ", xfft[len(xfft)//2-1])
-print("   number of freq:", len(xfft), )
-print(xfft)
-for i in range(0, len(xfft)//2):
-    print(i, " ", format(xfft[i],'5.3f'), " ",x1[i])
-'''
-'''
-print()
-print("Chan 1: first FFT amp:", yfft1[0], "last FFT amp:", yfft1[len(xfft)//2], "max:", max(yfft1))
-print("Chan 2: first FFT amp:", yfft2[0], "last FFT amp:", yfft2[len(xfft)//2], "max:", max(yfft1))
-print()
-'''
-
+# Setup location of fft amplitude and fft phase plots (axes)
 plot2 = fig.add_axes([0.1, 0.4, 0.6, 0.1])
-#plot2.set_xlim([0, len(xfft)//2])
-#plot2.set_ylim([min(np.abs(yfft1) + np.abs(yfft2)), max(np.abs(yfft1) + np.abs(yfft2))])
-
-'''
-print("### abs yfft1 ####")
-print(np.abs(yfft1[0:len(xfft)//2]))
-print("MAX:",np.amax(np.abs(yfft1[0:len(xfft)//2])))
-print("### abs yfft2 ####")
-print(np.abs(yfft2[0:len(xfft)//2]))
-print("MAX:",np.amax(np.abs(yfft2[0:len(xfft)//2])))
-'''
-'''
-[fftline1] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft1[0:len(xfft)//2]), label='fft1')
-[fftline2] = plot2.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), abs(yfft2[0:len(xfft)//2]), label='fft2')
-'''
 plot3 = fig.add_axes([0.1, 0.2, 0.6, 0.1])
-#plot3.set_xlim([0, len(xfft//2)])
 
-
-'''
-[angleline1] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), 57.2975*np.angle(yfft1[0:len(xfft)//2]), label='fft1')
-[angleline2] = plot3.plot(np.linspace(0, len(xfft)//2-1, len(xfft)//2), 57.2975*np.angle(yfft2[0:len(xfft)//2]), label='fft1')
-'''
-
-'''
-print(chanline1.get_data())
-print(chanline1.get_path())
-print(chanline2)
-print(fftline1.get_data())
-print(fftline1.get_path())
-print(fftline2)
-'''
-
-
-#yfft1 = fft(chan1)
-#yfft2 = fft(chan2)
+# Need to get freq list to intialize the slider
 xfft = fftfreq(x1.size)
 
-#####delimna#####   how to intialize wihtout data?????
+# Setup Sliders
 fftslider1ax = fig.add_axes([0.1, 0.1, 0.8, 0.03])
 fftslider1 = Slider(fftslider1ax, 'start', 0, len(xfft)//2-1, valinit=0, valstep=1)
 fftslider2ax = fig.add_axes([0.1, 0.05, 0.8, 0.03])
 fftslider2 = Slider(fftslider2ax, 'width', 0, len(xfft)//2-1, valinit=1, valstep=1)
 
-#fftslider_on_changed(fftslider1)
+# Set up event calls for changes to slider
 fftslider1.on_changed(fftslider_on_changed)
 fftslider2.on_changed(fftslider_on_changed)
 
-
-print("====> x1.size:",x1.size, "len(xfft):",len(xfft))
-
-
-slider1.set_val(100)
+# Call Slider routine to intialize the fist loaded dataset
+slider1.set_val(0)
 
 
 plt.show()
