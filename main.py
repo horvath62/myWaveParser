@@ -67,6 +67,8 @@ def timeslider_on_changed(val):
     chanmin = np.min([chan1min,chan2min])
     chanmax = np.max([chan1max,chan2max])
     plot1.set_ylim([chanmin,chanmax])
+    plot2.set_ylim(slider2.val-slider1.val)
+    plot3.set_ylim(slider2.val-slider1.val)
 
     if (slider2.val-slider1.val) < 100:
         plot1.set_xticks(np.arange(int(slider1.val), int(slider2.val), 10))
@@ -86,7 +88,8 @@ def timeslider_on_changed(val):
     print(zcross2.get_offsets())
     '''
 
-    fftslider_on_changed(0)
+    # fftslider_on_changed(0)
+    fftslider2.set_val( (slider2.val-slider1.val)//2 )
 
     plt.show()
 
@@ -101,6 +104,13 @@ def fftslider_on_changed(val):
 
     plot2.cla()
     plot3.cla()
+
+    plot2.set_ylabel("FFT Amplitude")
+    plot3.set_ylabel("Phase")
+
+
+    # plot3.yaxis.set_major_locator(plot3.MultipleLocator(90))
+    plot3.set_yticks((-180, -90, 0, 90, 180))
 
     ############## FFT CALCULATIONS  #####################
     yfft1 = fft(chan1[slider1.val:slider2.val])
@@ -146,8 +156,10 @@ def fftslider_on_changed(val):
     yfftmin = np.min([yfft1min,yfft2min])
     yfftmax = np.max([yfft1max,yfft2max])
 
-    yfft1temp = 0
-    yfft2temp = 0
+
+
+
+
     '''
     for i in range(0, len(xfft)//2-1):
         if np.abs(yfft1[i]) > yfft1temp:
@@ -203,6 +215,7 @@ print("File selected:", WaveFile)
 f = open(WaveFile, "rb")
 content = f.read()
 print("WAVE FILE LENGTH =", len(content), " bytes")
+f.close()
 
 # ENDDATA = (len(content) // 4) * 4 - 4
 # ENDDATA = 110000
@@ -345,8 +358,10 @@ fig.text(0.72, 0.77, "LEADING BYTES:"+format(predatacount, '8d'))
 ######################
 
 # Setup location of fft amplitude and fft phase plots (axes)
-plot2 = fig.add_axes([0.1, 0.4, 0.6, 0.1])
+plot2 = fig.add_axes([0.1, 0.3, 0.6, 0.2])
 plot3 = fig.add_axes([0.1, 0.2, 0.6, 0.1])
+
+
 
 # Need to get freq list to intialize the slider
 xfft = fftfreq(x1.size)
