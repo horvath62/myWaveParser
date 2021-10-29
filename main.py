@@ -62,20 +62,33 @@ def timeslider_on_changed(val):
     else:
         plot1.set_xticks(np.arange(int(slider1.val), int(slider2.val), int(10**(int(np.log10(slider2.val-slider1.val))))//2))
 
+
+
+
+    #zcross1 = plot1.scatter(x=[0], y=[0])
+    #zcross2 = plot1.scatter(x=[0], y=[0])
+
     zcrosslist1 = zerocrossing(x1, chan1, slider1.val, slider2.val)
-    #zcrosslist2 = zerocrossing(x1, chan2, slider1.val, slider2.val))
+    zcrosslist2 = zerocrossing(x1, chan2, slider1.val, slider2.val)
 
-    print(zcrosslist1)
+    print("chan1:")
     print(chan1[slider1.val:slider2.val])
+    print("zero crossing list:")
+    print(zcrosslist1)
+    print(zcrosslist2)
 
-    plot2.cla()
-    plot3.cla()
+    #zcross1.remove()
+    #zcross2.remove()
+    zcross1 = plot1.scatter(x=zcrosslist1, y=[0]*len(zcrosslist1))
+    zcross2 = plot1.scatter(x=zcrosslist2, y=[0]*len(zcrosslist2))
+
+    print("zcross1,zcross2")
+    print(zcross1.get_offsets())
+    print(zcross2.get_offsets())
 
     fftslider_on_changed(0)
 
     plt.show()
-
-
 
 
 def fftslider_on_changed(val):
@@ -84,6 +97,15 @@ def fftslider_on_changed(val):
 
     if fftslider2.val < fftslider1.val:
         fftslider2.set_val(fftslider1.val)
+
+    plot2.cla()
+    plot3.cla()
+
+
+
+
+
+
 
 
     ##############################################################
@@ -135,6 +157,7 @@ def fftslider_on_changed(val):
 
     yfft1temp = 0
     yfft2temp = 0
+    '''
     for i in range(0, len(xfft)//2-1):
         if np.abs(yfft1[i]) > yfft1temp:
             yfft1temp = np.abs(yfft1[i])
@@ -143,13 +166,13 @@ def fftslider_on_changed(val):
         print(format(i,'5d'), format(xfft[i],'7.5f'),
               "#1#", format(np.abs(yfft1[i]),'10.2f'), format(yfft1temp,'10.2f'),
               "#2#", format(np.abs(yfft2[i]),'10.2f'), format(yfft2temp,'10.2f'))
-
+    '''
     #yfft2min = min(np.abs(yfft2[fftslider1.val:fftslider2.val]))
     #yfft2max = max(np.abs(yfft2[fftslider1.val:fftslider2.val]))
 
     plot2.set_ylim([yfftmin, yfftmax])
 
-    print("###YLIM###:", plot2.get_ylim(), " #MIN# ", yfft1min,yfft2min, yfftmin, "#MAX#", yfft1max, yfft2max, yfftmax)
+    #print("###YLIM###:", plot2.get_ylim(), " #MIN# ", yfft1min,yfft2min, yfftmin, "#MAX#", yfft1max, yfft2max, yfftmax)
 
     plt.show()
 
@@ -163,9 +186,11 @@ chan1 = np.array([])
 chan2 = np.array([])
 x1 = np.array([])
 
-####################
-# SELECT FILE      #
-####################
+#############################################################################
+# ####         SELECT, OPEN, READ and PROCESS WAVE FILE               ##### #
+#############################################################################
+
+# file selection dialog box
 '''
 root = tk.Tk()
 root.withdraw()
@@ -179,14 +204,11 @@ WaveFile = myFile.name
 WaveFile = "C:/synth_samples/Rhodes_C4_session.wav"
 '''
 WaveFile = "C:/synth_samples/short_stereo_noerror.wav"
-'''
-#####################################
 
+###########################################################################
 
-'''
 print("File selected:", WaveFile)
 
-# OPEN FILE
 f = open(WaveFile, "rb")
 content = f.read()
 print("WAVE FILE LENGTH =", len(content), " bytes")
@@ -288,9 +310,10 @@ print()
 #print(chan1)
 
 
-############
-# FIGURE   #
-############
+#######################################################################################
+# ######                                   FIGURE                                #### #
+#######################################################################################
+
 fig = plt.figure(1, figsize=(8,10),dpi=100)
 
 ####################
@@ -307,6 +330,7 @@ plot1.set_ylim([-32768, 32768])
 [chanline1] = plot1.plot(x1, chan1, label='time1', linewidth=2, color='green')
 [chanline2] = plot1.plot(x1, chan2, label='time2', linewidth=2, color='red')
 
+
 slider1ax = fig.add_axes([0.1, 0.6, 0.6, 0.03])
 slider1 = Slider(slider1ax, 'start', 0, datacount-1, valinit=0, valstep=1)
 slider2ax = fig.add_axes([0.1, 0.55, 0.6, 0.03])
@@ -318,7 +342,7 @@ slider2.on_changed(timeslider_on_changed)
 ############
 #  TEXT    #
 ############
-fig.canvas.manager.set_window_title('WAVE FILE ANALYZER')
+fig.canvas.manager.set_window_title('WAVE FILE ANALYZER   -  '+ WaveFile)
 fig.text(0.72, 0.98, "WAVE FILE HEADER:" )
 fig.text(0.72, 0.96, "SAMPLING FREQ:" + format(SAMPLEFREQ,'7.0f'))
 fig.text(0.72, 0.94, "SAMPLE INT:"+ format(1/SAMPLEFREQ*1e6,'6.2f')+'us' )
@@ -332,8 +356,6 @@ fig.text(0.72, 0.81, "PROCESSED SAMPLES:"+format(datacount, '8d'))
 fig.text(0.72, 0.79, "NOISE FLOOR:"+format(NOISETHRESHOLD, '8d'))
 fig.text(0.72, 0.77, "LEADING BYTES:"+format(predatacount, '8d'))
 
-# Create the scatter plot
-# plt.scatter(x=x, y=y)
 
 ######################
 # PLOT 2 and 3(FFT)  #
