@@ -47,6 +47,17 @@ def timeslider_on_changed(val):
     if slider2.val < slider1.val:
         slider2.set_val(slider1.val)
 
+    # plot1.set_title("Wave File")
+    # plot1.set_ylabel("amplitude")
+    # plot1.set_xlabel("time")
+    # plot1.set_xlim([0, datacount - 1])
+    # plot1.set_ylim([-32768, 32768])
+
+    plot1.cla()
+
+    [chanline1] = plot1.plot(x1[slider1.val:slider2.val], chan1[slider1.val:slider2.val], label='time1', linewidth=2, color='green')
+    [chanline2] = plot1.plot(x1[slider1.val:slider2.val], chan2[slider1.val:slider2.val], label='time2', linewidth=2, color='red')
+
     plot1.set_xlim([int(slider1.val), int(slider2.val)])
 
     chan1min = np.min(chan1[slider1.val:slider2.val])
@@ -62,29 +73,18 @@ def timeslider_on_changed(val):
     else:
         plot1.set_xticks(np.arange(int(slider1.val), int(slider2.val), int(10**(int(np.log10(slider2.val-slider1.val))))//2))
 
-
-
-
-    #zcross1 = plot1.scatter(x=[0], y=[0])
-    #zcross2 = plot1.scatter(x=[0], y=[0])
-
+    # ZERO CROSSING LIST MADE FROM DATA
     zcrosslist1 = zerocrossing(x1, chan1, slider1.val, slider2.val)
     zcrosslist2 = zerocrossing(x1, chan2, slider1.val, slider2.val)
-
-    print("chan1:")
-    print(chan1[slider1.val:slider2.val])
-    print("zero crossing list:")
-    print(zcrosslist1)
-    print(zcrosslist2)
-
-    #zcross1.remove()
-    #zcross2.remove()
+    # PLOT ZERO CROSSING
     zcross1 = plot1.scatter(x=zcrosslist1, y=[0]*len(zcrosslist1))
     zcross2 = plot1.scatter(x=zcrosslist2, y=[0]*len(zcrosslist2))
 
+    '''
     print("zcross1,zcross2")
     print(zcross1.get_offsets())
     print(zcross2.get_offsets())
+    '''
 
     fftslider_on_changed(0)
 
@@ -95,20 +95,14 @@ def fftslider_on_changed(val):
 
     print("FFT Slider", fftslider1.val, fftslider2.val)
 
+    # IF END SLIDER IS LESS THAN START SLIDER, THATS ILLEGAL.  FORCE TO SAME
     if fftslider2.val < fftslider1.val:
-        fftslider2.set_val(fftslider1.val)
+        fftslider2.set_val(fftslider1.val+1)
 
     plot2.cla()
     plot3.cla()
 
-
-
-
-
-
-
-
-    ##############################################################
+    ############## FFT CALCULATIONS  #####################
     yfft1 = fft(chan1[slider1.val:slider2.val])
     yfft2 = fft(chan2[slider1.val:slider2.val])
     xfft = fftfreq(slider2.val - slider1.val + 1)
@@ -142,9 +136,6 @@ def fftslider_on_changed(val):
     [angleline2] = plot3.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2),
                               57.2975 * np.angle(yfft2[0:len(xfft) // 2]), label='fft1')
     #############################################################
-
-
-
 
     plot2.set_xlim([int(fftslider1.val), int(fftslider2.val)])
     plot3.set_xlim([int(fftslider1.val), int(fftslider2.val)])
@@ -322,14 +313,6 @@ fig = plt.figure(1, figsize=(8,10),dpi=100)
 
 plot1 = fig.add_axes([0.1, 0.7, 0.6, 0.3])
 plot1.grid()
-#plot1.set_title("Wave File")
-#plot1.set_ylabel("amplitude")
-#plot1.set_xlabel("time")
-plot1.set_xlim([0, datacount-1])
-plot1.set_ylim([-32768, 32768])
-[chanline1] = plot1.plot(x1, chan1, label='time1', linewidth=2, color='green')
-[chanline2] = plot1.plot(x1, chan2, label='time2', linewidth=2, color='red')
-
 
 slider1ax = fig.add_axes([0.1, 0.6, 0.6, 0.03])
 slider1 = Slider(slider1ax, 'start', 0, datacount-1, valinit=0, valstep=1)
@@ -378,9 +361,8 @@ fftslider2 = Slider(fftslider2ax, 'end', 0, len(xfft)//2-1, valinit=len(xfft)//2
 fftslider1.on_changed(fftslider_on_changed)
 fftslider2.on_changed(fftslider_on_changed)
 
-# Call Slider routine to intialize the fist loaded dataset
+# Call Slider routine to intialize the first loaded dataset
 slider1.set_val(0)
-
 
 plt.show()
 
