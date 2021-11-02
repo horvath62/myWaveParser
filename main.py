@@ -47,6 +47,9 @@ def timeslider_on_changed(val):
     if slider2.val < slider1.val:
         slider2.set_val(slider1.val)
 
+    global zcrosslist1
+    global zcrosslist2
+
     # plot1.set_title("Wave File")
     # plot1.set_ylabel("amplitude")
     # plot1.set_xlabel("time")
@@ -112,29 +115,11 @@ def fftslider_on_changed(val):
     # plot3.yaxis.set_major_locator(plot3.MultipleLocator(90))
     plot3.set_yticks((-180, -90, 0, 90, 180))
 
-    ############## FFT CALCULATIONS  #####################
+    # ############# FFT CALCULATIONS  #################### #
     yfft1 = fft(chan1[slider1.val:slider2.val])
     yfft2 = fft(chan2[slider1.val:slider2.val])
     xfft = fftfreq(slider2.val - slider1.val + 1)
 
-    '''
-    print("### length #####")
-    print("len(xfft):", len(xfft), "len(yfft)", len(yfft1), len(yfft2))
-    print("### xfft ###")
-    print(xfft)
-    print("### yfft1 ###")
-    print(yfft1)
-    print("### yfft2 ###")
-    print(yfft2)
-    for i in range(0, len(xfft) - 1):
-        print(yfft1[i])
-    print("########")
-    print()
-    # print("#### abs yfft1 ###")
-    # print(np.abs(yfft1))
-    # print("#### abs yfft2 ###")
-    # print(np.abs(yfft2))
-    '''
 
     [fftline1] = plot2.plot(np.linspace(0, len(xfft) // 2 - 1, len(xfft) // 2), abs(yfft1[0:len(xfft) // 2]),
                             label='fft1')
@@ -156,26 +141,23 @@ def fftslider_on_changed(val):
     yfftmin = np.min([yfft1min,yfft2min])
     yfftmax = np.max([yfft1max,yfft2max])
 
-
-
-
-
-    '''
-    for i in range(0, len(xfft)//2-1):
-        if np.abs(yfft1[i]) > yfft1temp:
-            yfft1temp = np.abs(yfft1[i])
-        if np.abs(yfft2[i]) > yfft2temp:
-            yfft2temp = np.abs(yfft2[i])
-        print(format(i,'5d'), format(xfft[i],'7.5f'),
-              "#1#", format(np.abs(yfft1[i]),'10.2f'), format(yfft1temp,'10.2f'),
-              "#2#", format(np.abs(yfft2[i]),'10.2f'), format(yfft2temp,'10.2f'))
-    '''
-    #yfft2min = min(np.abs(yfft2[fftslider1.val:fftslider2.val]))
-    #yfft2max = max(np.abs(yfft2[fftslider1.val:fftslider2.val]))
-
     plot2.set_ylim([yfftmin, yfftmax])
 
-    #print("###YLIM###:", plot2.get_ylim(), " #MIN# ", yfft1min,yfft2min, yfftmin, "#MAX#", yfft1max, yfft2max, yfftmax)
+    plt.show()
+
+
+def button1(event):
+    fig2 = plt.figure(2, figsize=(8, 10), dpi=100)
+    fig2.canvas.manager.set_window_title('WAVE FILE INFO   -  ' + WaveFile)
+    fig2.text(0.05, 0.98, "WAVE FILE DERIVED PROPERTIES:")
+    fig2.text(0.05, 0.96, "zcrosslist:" + format(zcrosslist1[0], '7.0f'))
+    textbuf=""
+    for i in range(1, len(zcrosslist1)):
+
+        textbuf = textbuf + format(zcrosslist1[i-1], '7.2f')+" "+format(zcrosslist1[i]) \
+             +freqnote(zcrosslist1[i-1],zcrosslist1[i])+ "\n"
+    fig2.text(0.05, 0.86, textbuf, va="top")
+    
 
     plt.show()
 
@@ -188,6 +170,8 @@ datacount = 0
 chan1 = np.array([])
 chan2 = np.array([])
 x1 = np.array([])
+zcrosslist1 = []
+zcrosslist2 = []
 
 #############################################################################
 # ####         SELECT, OPEN, READ and PROCESS WAVE FILE               ##### #
@@ -352,6 +336,14 @@ fig.text(0.72, 0.81, "PROCESSED SAMPLES:"+format(datacount, '8d'))
 fig.text(0.72, 0.79, "NOISE FLOOR:"+format(NOISETHRESHOLD, '8d'))
 fig.text(0.72, 0.77, "LEADING BYTES:"+format(predatacount, '8d'))
 
+#############
+#  BUTTONS  #
+#############
+axBut1 = plt.axes([0.85,0.6,0.05,0.05])
+btn1 = Button(axBut1, label="Info",)
+btn1.on_clicked(button1)
+
+
 
 ######################
 # PLOT 2 and 3(FFT)  #
@@ -361,9 +353,7 @@ fig.text(0.72, 0.77, "LEADING BYTES:"+format(predatacount, '8d'))
 plot2 = fig.add_axes([0.1, 0.3, 0.6, 0.2])
 plot3 = fig.add_axes([0.1, 0.2, 0.6, 0.1])
 
-
-
-# Need to get freq list to intialize the slider
+# Need to get freq list to initialize the slider
 xfft = fftfreq(x1.size)
 
 # Setup Sliders

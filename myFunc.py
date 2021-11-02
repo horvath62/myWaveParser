@@ -1,4 +1,6 @@
 import numpy as np
+import math
+
 
 # Convert a signed 16-bit value to signed integer (i.e. 0xffff => -1)
 def signedint16(value):
@@ -7,6 +9,11 @@ def signedint16(value):
     return value
 
 
+def freqnote(x1,x2,samplingfreq):
+    freq = (x2-x1)*samplingfreq
+    ratio = freq/440
+    logratio = math.log(ratio,2)
+    notefraction = ratio-logratio
 
 
 
