@@ -151,13 +151,29 @@ def button1(event):
     fig2.canvas.manager.set_window_title('WAVE FILE INFO   -  ' + WaveFile)
     fig2.text(0.05, 0.98, "WAVE FILE DERIVED PROPERTIES:")
     fig2.text(0.05, 0.96, "zcrosslist:" + format(zcrosslist1[0], '7.0f'))
-    textbuf=""
-    for i in range(1, len(zcrosslist1)):
 
-        textbuf = textbuf + format(zcrosslist1[i-1], '7.2f')+" "+format(zcrosslist1[i]) \
-             +freqnote(zcrosslist1[i-1],zcrosslist1[i])+ "\n"
+    freqlist1=[]
+    freqlist2=[]
+
+    textbuf="ZERO CROSSING FREQUENCY and NOTE:\nChannel 1:\n"
+    for i in range(1, len(zcrosslist1)-1):
+        freq = SAMPLEFREQ/(zcrosslist1[i+1]-zcrosslist1[i-1])
+        textbuf = textbuf + " " + format(zcrosslist1[i], '7.2f')+" Note:"+freqnote(freq)+ "\n"
+        freqlist1.append(freq)
+
+    textbuf = textbuf +"\nChannel 2:"
+    for i in range(1, len(zcrosslist2) - 1):
+        freq = SAMPLEFREQ / (zcrosslist2[i + 1] - zcrosslist2[i - 1])
+        textbuf = textbuf + " " + format(zcrosslist2[i], '7.2f') + " Note:" + freqnote(freq) + "\n"
+        freqlist2.append(freq)
+
     fig2.text(0.05, 0.86, textbuf, va="top")
-    
+
+    print(freqlist1)
+
+    plot10 = fig2.add_axes([0.1,0.1,0.8,0.3])
+    plot10.plot(np.linspace(0, len(freqlist1)-1, len(freqlist1)), freqlist1)
+    plot10.plot(np.linspace(0, len(freqlist2)-1, len(freqlist2)), freqlist2)
 
     plt.show()
 
@@ -166,7 +182,6 @@ def button1(event):
 NOISETHRESHOLD = 2
 PREDATA = True
 datacount = 0
-#GRAPHX = 2000
 chan1 = np.array([])
 chan2 = np.array([])
 x1 = np.array([])

@@ -9,12 +9,28 @@ def signedint16(value):
     return value
 
 
-def freqnote(x1,x2,samplingfreq):
-    freq = (x2-x1)*samplingfreq
-    ratio = freq/440
-    logratio = math.log(ratio,2)
-    notefraction = ratio-logratio
+# Returns musical note and cents from frequency
+def freqnote(freq):
+    notes = (["C ", "C#", "D ", "D#", "E ", "F ", "F#", "G ", "G#", "A ", "A#", "B "])
+    ratio = freq / 16.35  # C0 frequency
+    notenumber = math.log(ratio, 2) * 12
+    octave = notenumber // 12
+    notemod = notenumber % 12
+    noteint = round(notemod)
+    notecent = 100 * (notemod - noteint)
+    if noteint > 11:   #because of rounding it can round up to 12
+        noteint = noteint - 12
+        octave = octave + 1
+        # print("over11")
 
+    # print(noteint)
+    note = notes[noteint]
+
+    # print(format(freq,'+5.2f'), format(ratio, '+5.2f'),
+    # format(notenumber, '-7.2f'), format(octave, '-6.2f'), format(notemod, '-6.2f'),
+    # format(noteint, '-6.2f'), format(notecent, '-6.2f'), "   ", '{0}{1:1.0f} {2:+2.0f} cents'.format(note, octave,
+
+    return '{0}{1:1.0f} {2:+2.0f} cents'.format(note, octave, notecent)
 
 
 def zerocrossing (xdata, ydata, starti, endi):
