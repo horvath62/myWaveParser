@@ -49,6 +49,7 @@ def timeslider_on_changed(val):
 
     global zcrosslist1
     global zcrosslist2
+    global fftslider2val
 
     # plot1.set_title("Wave File")
     # plot1.set_ylabel("amplitude")
@@ -92,17 +93,25 @@ def timeslider_on_changed(val):
     '''
 
     # fftslider_on_changed(0)
-    fftslider2.set_val( (slider2.val-slider1.val)//2 )
+    fftslider2.set_val(fftslider2val)
 
     plt.show()
 
 
 def fftslider_on_changed(val):
 
+    global fftslider2val
+    global fftslider1val
+
     print("FFT Slider", fftslider1.val, fftslider2.val)
+
+    # need to save slider value globally for next time this is called ( so it doesn't change)
+    fftslider2val = fftslider2.val
+    fftslider1val = fftslider1.val
 
     # IF END SLIDER IS LESS THAN START SLIDER, THATS ILLEGAL.  FORCE TO SAME
     if fftslider2.val < fftslider1.val:
+        fftslider2val = fftslider1.val+1
         fftslider2.set_val(fftslider1.val+1)
 
     plot2.cla()
@@ -149,29 +158,37 @@ def fftslider_on_changed(val):
 def button1(event):
     fig2 = plt.figure(2, figsize=(8, 10), dpi=100)
     fig2.canvas.manager.set_window_title('WAVE FILE INFO   -  ' + WaveFile)
-    fig2.text(0.05, 0.98, "WAVE FILE DERIVED PROPERTIES:")
+    fig2.text(0.05, 0.98, "WAVE FILE ZERO-CROSSING INTERVAL:")
     fig2.text(0.05, 0.96, "zcrosslist:" + format(zcrosslist1[0], '7.0f'))
+    plot10 = fig2.add_axes([0.1,0.75,0.8,0.2])
+    zeroslider1ax = fig2.add_axes([0.1, 0.70, 0.8, 0.03])
+    zeroslider1 = Slider(zeroslider1ax, 'start', 0, len(zcrosslist1) - 1, valinit=0, valstep=1)
+    zeroslider2ax = fig2.add_axes([0.1, 0.65, 0.8, 0.03])
+    zeroslider2 = Slider(zeroslider2ax, 'end', 0, len(zcrosslist1) - 1, valinit=len(zcrosslist1)-1, valstep=1)
 
     freqlist1=[]
     freqlist2=[]
 
-    textbuf="ZERO CROSSING FREQUENCY and NOTE:\nChannel 1:\n"
+    #textbuf="ZERO CROSSING FREQUENCY and NOTE:\n" \
+    textbuf = "Channel 1:\n"
     for i in range(1, len(zcrosslist1)-1):
         freq = SAMPLEFREQ/(zcrosslist1[i+1]-zcrosslist1[i-1])
-        textbuf = textbuf + " " + format(zcrosslist1[i], '7.2f')+" Note:"+freqnote(freq)+ "\n"
+        textbuf = textbuf + freqnote(freq) + "  " + format(freq, '8.2f') + "hz\n"
         freqlist1.append(freq)
 
-    textbuf = textbuf +"\nChannel 2:"
+    fig2.text(0.05, 0.6, textbuf, va="top")
+
+    textbuf = "Channel 2:\n"
     for i in range(1, len(zcrosslist2) - 1):
         freq = SAMPLEFREQ / (zcrosslist2[i + 1] - zcrosslist2[i - 1])
-        textbuf = textbuf + " " + format(zcrosslist2[i], '7.2f') + " Note:" + freqnote(freq) + "\n"
+        textbuf = textbuf + freqnote(freq) + "  " + format(freq, '8.2f') + "hz\n"
         freqlist2.append(freq)
 
-    fig2.text(0.05, 0.86, textbuf, va="top")
+    fig2.text(0.55, 0.6, textbuf, va="top")
 
     print(freqlist1)
 
-    plot10 = fig2.add_axes([0.1,0.1,0.8,0.3])
+
     plot10.plot(np.linspace(0, len(freqlist1)-1, len(freqlist1)), freqlist1)
     plot10.plot(np.linspace(0, len(freqlist2)-1, len(freqlist2)), freqlist2)
 
@@ -354,8 +371,8 @@ fig.text(0.72, 0.77, "LEADING BYTES:"+format(predatacount, '8d'))
 #############
 #  BUTTONS  #
 #############
-axBut1 = plt.axes([0.85,0.6,0.05,0.05])
-btn1 = Button(axBut1, label="Info",)
+axBut1 = plt.axes([0.75,0.7,0.15,0.05])
+btn1 = Button(axBut1, label="Zero Crossing",)
 btn1.on_clicked(button1)
 
 
@@ -381,8 +398,10 @@ fftslider2 = Slider(fftslider2ax, 'end', 0, len(xfft)//2-1, valinit=len(xfft)//2
 fftslider1.on_changed(fftslider_on_changed)
 fftslider2.on_changed(fftslider_on_changed)
 
-# Call Slider routine to intialize the first loaded dataset
+# Call Slider routine to initialize the first loaded dataset
+fftslider2val = len(xfft)//2
 slider1.set_val(0)
+
 
 plt.show()
 
