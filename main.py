@@ -117,6 +117,7 @@ def fftslider_on_changed(val):
     plot2.cla()
     plot3.cla()
 
+    plot2.set_yscale("log")
     plot2.set_ylabel("FFT Amplitude")
     plot3.set_ylabel("Phase")
 
